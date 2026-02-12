@@ -1,15 +1,14 @@
 import SearchBar from "@/components/SearchBar";
-import { icons } from "@/constants/icons";
-import { images } from "@/constants/images";
 import { Actor } from "@/interfaces/Actor";
 import { apiFetch, ApiError } from "@/services/api";
 import { clearAuthSession } from "@/services/auth";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
-import { ActivityIndicator, Image, ImageBackground, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, ScrollView, Text, TouchableOpacity, View } from "react-native";
 
-export default function Index() {
+export default function ManualActorSearch() {
   const router = useRouter();
+  const { photoUri } = useLocalSearchParams<{ photoUri?: string }>();
   const [actors, setActors] = useState<Actor[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -61,22 +60,17 @@ export default function Index() {
   }
 
   return (
-    <View className="flex-1 bg-white">
-      <ImageBackground
-        source={images.backgroundImage}
-        className="w-full justify-end pb-2 px-5"
-        style={{ height: 120 }}
-        resizeMode="cover"
-      >
-        <Text style={{ fontStyle: 'italic', fontSize: 40, fontWeight: 'bold', color: '#fff' }}>
-          Actor List
-        </Text>
-      </ImageBackground>
+    <View className="flex-1 bg-white px-5">
+      <TouchableOpacity onPress={() => router.back()} className="mt-20 mb-8">
+        <Text className="text-darkBlue text-xl font-semibold">&larr; Back</Text>
+      </TouchableOpacity>
+
+      <Text className="text-2xl font-semibold text-primary mb-4">Search Actor</Text>
 
       <ScrollView
-        className="flex-1 px-5"
+        className="flex-1"
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 180 }}
+        contentContainerStyle={{ paddingBottom: 40 }}
       >
         <View className="flex-1 mt-2 mb-2">
           <SearchBar value={search} onChangeText={setSearch} />
@@ -89,7 +83,16 @@ export default function Index() {
           filteredActors.map((actor) => (
             <TouchableOpacity
               key={actor.id}
-              onPress={() => router.push(`/actors/${actor.id}`)}
+              onPress={() =>
+                router.push({
+                  pathname: "/camera/continuity_check",
+                  params: {
+                    actorId: String(actor.id),
+                    actorName: String(actor.name),
+                    photoUri: String(photoUri ?? ""),
+                  },
+                })
+              }
               className="bg-lightGray p-4 rounded-2xl mb-3"
               activeOpacity={0.7}
             >
@@ -100,15 +103,6 @@ export default function Index() {
           ))
         )}
       </ScrollView>
-
-      <TouchableOpacity
-        onPress={() => router.push("/actors/new_profile")}
-        className="absolute bottom-28 right-5 bg-darkBlue rounded-full items-center justify-center shadow-lg"
-        style={{ width: 56, height: 56 }}
-        activeOpacity={0.85}
-      >
-        <Image source={icons.add_user} style={{ width: 36, height: 36, tintColor: "#fff" }} />
-      </TouchableOpacity>
     </View>
   );
 }

@@ -8,9 +8,10 @@ module.exports = {
       colors: {
         primary: '#2B2B2B',
         darkBlue: '#023E8A',
-        oceanBlue: '#0077B6',
+        oceanBlue: '#6a8ef7',
         softCyan: '#90E0EF',
-        paleBlue: '#CAF0F8'
+        paleBlue: '#CAF0F8',
+        lightGray: '#EBEBEB'
       }
     },
   },

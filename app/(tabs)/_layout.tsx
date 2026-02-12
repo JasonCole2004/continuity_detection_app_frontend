@@ -20,10 +20,10 @@ const TabIcon = ({ focused, icon, title }: TabIconProps) => {
       >
         <Image
           source={icon}
-          tintColor="#151312"
+          tintColor="#FFFFFF"
           style={{ width: 24, height: 24 }}
         />
-        <Text className="text-primary text-lg font-semibold ml-2">
+        <Text className="text-white text-lg font-semibold ml-2">
           {title}
         </Text>
       </ImageBackground>

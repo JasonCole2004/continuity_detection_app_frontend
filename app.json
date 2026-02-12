@@ -9,7 +9,12 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSCameraUsageDescription": "Allow access to take actor profile photos.",
+        "NSPhotoLibraryUsageDescription": "Allow access to select actor profile photos.",
+        "NSPhotoLibraryAddUsageDescription": "Allow saving actor profile photos."
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -18,7 +23,11 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.anonymous.continuity_detection_app_frontend"
+      "package": "com.anonymous.continuity_detection_app_frontend",
+      "permissions": [
+        "CAMERA",
+        "READ_MEDIA_IMAGES"
+      ]
     },
     "web": {
       "output": "static",
@@ -26,6 +35,7 @@
     },
     "plugins": [
       "expo-router",
+      "expo-notifications",
       [
         "expo-splash-screen",
         {
