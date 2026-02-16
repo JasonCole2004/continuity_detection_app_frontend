@@ -10,10 +10,13 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
+      "bundleIdentifier": "com.jasoncole.cutsafe",
+      "buildNumber": "1",
       "infoPlist": {
         "NSCameraUsageDescription": "Allow access to take actor profile photos.",
         "NSPhotoLibraryUsageDescription": "Allow access to select actor profile photos.",
-        "NSPhotoLibraryAddUsageDescription": "Allow saving actor profile photos."
+        "NSPhotoLibraryAddUsageDescription": "Allow saving actor profile photos.",
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
@@ -52,6 +55,12 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "ea5dd452-92fc-4c6a-bc32-7ef0bc516137"
+      }
     }
   }
 }

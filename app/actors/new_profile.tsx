@@ -37,7 +37,7 @@ export default function NewActor() {
     }
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
+      allowsEditing: false,
       quality: 0.9,
     });
     if (!result.canceled && result.assets[0]) {
@@ -58,7 +58,7 @@ export default function NewActor() {
       return;
     }
     const result = await ImagePicker.launchCameraAsync({
-      allowsEditing: true,
+      allowsEditing: false,
       quality: 0.9,
     });
     if (!result.canceled && result.assets[0]) {
