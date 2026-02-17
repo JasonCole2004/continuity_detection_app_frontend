@@ -117,5 +117,9 @@ export default function RootLayout() {
         name="settings/reset_password"
         options={{ headerShown: false }}
     />
+    <Stack.Screen
+        name="settings/delete_production_account"
+        options={{ headerShown: false }}
+    />
   </Stack>;
 }

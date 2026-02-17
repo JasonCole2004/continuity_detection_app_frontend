@@ -37,6 +37,14 @@ const Settings = () => {
         </TouchableOpacity>
 
         <TouchableOpacity
+          className="bg-lightGray px-5 py-4 rounded-2xl mb-3"
+          activeOpacity={0.8}
+          onPress={() => router.push("/settings/delete_production_account" as never)}
+        >
+          <Text className="text-lg font-semibold">Delete Production Account</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
           className="bg-red-600 px-5 py-4 rounded-2xl"
           activeOpacity={0.8}
           onPress={async () => {

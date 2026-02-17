@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
   ImageBackground,
   KeyboardAvoidingView,
+  Modal,
   Platform,
   ScrollView,
   Text,
@@ -26,6 +27,9 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [termsVisible, setTermsVisible] = useState(false);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -82,6 +86,10 @@ export default function Login() {
 
     if (!email.trim() || !password.trim() || !confirmPassword.trim()) {
       setError("Email, password, and confirm password are required.");
+      return;
+    }
+    if (!acceptedTerms) {
+      setError("You must accept the Terms and Conditions.");
       return;
     }
     if (password.length < 8) {
@@ -212,7 +220,7 @@ export default function Login() {
                 placeholder="Password"
                 value={password}
                 onChangeText={setPassword}
-                secureTextEntry
+                secureTextEntry={!showPassword}
                 placeholderTextColor="#6B7280"
                 style={{
                   height: 52,
@@ -222,25 +230,71 @@ export default function Login() {
                   lineHeight: 20,
                 }}
               />
+              {mode === "login" ? (
+                <TouchableOpacity
+                  className="self-end -mt-2"
+                  activeOpacity={0.85}
+                  onPress={() => setShowPassword((prev) => !prev)}
+                >
+                  <Text className="text-white text-sm font-semibold">
+                    {showPassword ? "Hide" : "Show"} Password
+                  </Text>
+                </TouchableOpacity>
+              ) : null}
 
               {mode === "create" ? (
-                <TextInput
-                  className="bg-white rounded-2xl px-4 text-base"
-                  placeholder="Confirm Password"
-                  value={confirmPassword}
-                  onChangeText={setConfirmPassword}
-                  secureTextEntry
-                  placeholderTextColor="#6B7280"
-                  style={{
-                    height: 52,
-                    paddingVertical: 12,
-                    textAlignVertical: "center",
-                    fontSize: 16,
-                    lineHeight: 20,
-                  }}
-                />
+                <>
+                  <TextInput
+                    className="bg-white rounded-2xl px-4 text-base"
+                    placeholder="Confirm Password"
+                    value={confirmPassword}
+                    onChangeText={setConfirmPassword}
+                    secureTextEntry={!showPassword}
+                    placeholderTextColor="#6B7280"
+                    style={{
+                      height: 52,
+                      paddingVertical: 12,
+                      textAlignVertical: "center",
+                      fontSize: 16,
+                      lineHeight: 20,
+                    }}
+                  />
+                  <TouchableOpacity
+                    className="self-end -mt-2"
+                    activeOpacity={0.85}
+                    onPress={() => setShowPassword((prev) => !prev)}
+                  >
+                    <Text className="text-white text-sm font-semibold">
+                      {showPassword ? "Hide" : "Show"} Password
+                    </Text>
+                  </TouchableOpacity>
+                </>
               ) : null}
             </View>
+
+            {mode === "create" ? (
+              <View className="mt-4">
+                <View className="flex-row items-center flex-wrap">
+                  <TouchableOpacity
+                    className="flex-row items-center"
+                    activeOpacity={0.85}
+                    onPress={() => setAcceptedTerms((prev) => !prev)}
+                  >
+                    <View
+                      className={`w-5 h-5 rounded border items-center justify-center mr-3 ${acceptedTerms ? "bg-darkBlue border-darkBlue" : "bg-white border-gray-400"}`}
+                    >
+                      {acceptedTerms ? <Text className="text-white text-xs font-bold">X</Text> : null}
+                    </View>
+                    <Text className="text-white text-base">I accept </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity activeOpacity={0.85} onPress={() => setTermsVisible(true)}>
+                    <Text className="text-white text-base underline font-semibold">
+                      Terms and Conditions
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            ) : null}
 
             <TouchableOpacity
               className="bg-darkBlue mt-4 py-4 rounded-full items-center"
@@ -279,6 +333,104 @@ export default function Login() {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
+
+      <Modal
+        animationType="slide"
+        transparent
+        visible={termsVisible}
+        onRequestClose={() => setTermsVisible(false)}
+      >
+        <View className="flex-1 bg-black/50 justify-center px-6">
+          <View className="bg-white rounded-2xl p-5" style={{ maxHeight: 560 }}>
+            <Text className="text-xl font-semibold text-primary mb-1">Terms and Conditions</Text>
+            <Text className="text-sm text-gray-500 mb-4">Effective Date: February 17, 2026</Text>
+
+            <ScrollView className="mb-4" showsVerticalScrollIndicator>
+              <Text className="text-base text-gray-700 mb-3">
+                By creating an account or using this app, you agree to these Terms and Conditions.
+              </Text>
+
+              <Text className="text-base font-semibold text-primary mb-1">1. Purpose of the App</Text>
+              <Text className="text-base text-gray-700 mb-3">
+                This app supports and speeds up film production workflows, including continuity and
+                production support tasks.
+              </Text>
+
+              <Text className="text-base font-semibold text-primary mb-1">
+                2. Actor Data and Storage
+              </Text>
+              <Text className="text-base text-gray-700 mb-3">
+                Actor details and related production data are stored on a secure server with reasonable
+                technical and organizational safeguards.
+              </Text>
+
+              <Text className="text-base font-semibold text-primary mb-1">3. Permitted Data Use</Text>
+              <Text className="text-base text-gray-700 mb-3">
+                You authorize the app to use submitted data, including actor-related data, to operate
+                app features and improve its neural network model performance. Data use is limited to
+                film-production functions and quality improvements only.
+              </Text>
+
+              <Text className="text-base font-semibold text-primary mb-1">
+                4. No Harmful or Unrelated Use
+              </Text>
+              <Text className="text-base text-gray-700 mb-3">
+                Data will not be used for unrelated commercial exploitation or harmful purposes,
+                including malicious targeting, harassment, or misuse.
+              </Text>
+
+              <Text className="text-base font-semibold text-primary mb-1">
+                5. AI Accuracy Disclaimer
+              </Text>
+              <Text className="text-base text-gray-700 mb-3">
+                The app uses AI and machine-learning systems that may produce errors, omissions, false
+                positives, false negatives, or inconsistent results.
+              </Text>
+
+              <Text className="text-base font-semibold text-primary mb-1">6. User Responsibility</Text>
+              <Text className="text-base text-gray-700 mb-3">
+                AI outputs are assistive only. You are responsible for reviewing outputs and making
+                final production decisions.
+              </Text>
+
+              <Text className="text-base font-semibold text-primary mb-1">
+                7. Limitation of Liability
+              </Text>
+              <Text className="text-base text-gray-700 mb-3">
+                To the maximum extent permitted by law, the app and its operators are not liable for
+                losses, continuity issues, delays, costs, or damages arising from app use or AI outputs.
+              </Text>
+
+              <Text className="text-base font-semibold text-primary mb-1">8. Account Security</Text>
+              <Text className="text-base text-gray-700 mb-3">
+                You are responsible for maintaining the confidentiality of your account credentials and
+                activities under your account.
+              </Text>
+
+              <Text className="text-base font-semibold text-primary mb-1">
+                9. Data Rights and Deletion
+              </Text>
+              <Text className="text-base text-gray-700 mb-3">
+                You may request deletion of your production account and associated data through available
+                app controls or support channels, subject to legal or operational retention requirements.
+              </Text>
+
+              <Text className="text-base font-semibold text-primary mb-1">10. Changes to Terms</Text>
+              <Text className="text-base text-gray-700 mb-1">
+                These Terms may be updated from time to time. Continued use of the app after updates
+                means you accept the revised Terms.
+              </Text>
+            </ScrollView>
+            <TouchableOpacity
+              className="bg-darkBlue py-3 rounded-full items-center"
+              activeOpacity={0.85}
+              onPress={() => setTermsVisible(false)}
+            >
+              <Text className="text-white text-base font-semibold">Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </ImageBackground>
   );
 }

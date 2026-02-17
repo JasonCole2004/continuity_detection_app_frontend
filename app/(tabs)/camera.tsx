@@ -11,11 +11,32 @@ type SelectedImage = {
   mimeType?: string | null;
 };
 
+const toUserFriendlyError = (message: string) => {
+  const lower = message.toLowerCase();
+  if (lower.includes("no face detected") || lower.includes("face could not be detected")) {
+    return "No face was detected. Please use a clear, front-facing photo with good lighting.";
+  }
+  if (lower.includes("no actor embeddings available")) {
+    return "No actors have been added to this production yet. Please add an actor profile first.";
+  }
+  return message;
+};
+
 const CameraScreen = () => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [resultText, setResultText] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  const ensureActorsExist = async () => {
+    const response = await apiFetch("/api/actors", { method: "GET" });
+    const data = await response.json();
+    if (!Array.isArray(data) || data.length === 0) {
+      throw new Error(
+        "No actors have been added to this production yet. Please add an actor profile first."
+      );
+    }
+  };
 
   const sendForIdentification = async (photo: SelectedImage) => {
     setError(null);
@@ -54,7 +75,9 @@ const CameraScreen = () => {
         router.replace("/login");
         return;
       }
-      setError(err instanceof Error ? err.message : "Something went wrong");
+      setError(
+        err instanceof Error ? toUserFriendlyError(err.message) : "Something went wrong"
+      );
     } finally {
       setLoading(false);
     }
@@ -62,6 +85,17 @@ const CameraScreen = () => {
 
   const handleTakePhoto = async () => {
     setError(null);
+    try {
+      setLoading(true);
+      await ensureActorsExist();
+    } catch (err) {
+      setLoading(false);
+      setError(err instanceof Error ? toUserFriendlyError(err.message) : "Something went wrong");
+      return;
+    } finally {
+      setLoading(false);
+    }
+
     const cameraPermission = await ImagePicker.requestCameraPermissionsAsync();
     if (!cameraPermission.granted) {
       setError("Camera permission is required.");
@@ -83,6 +117,17 @@ const CameraScreen = () => {
 
   const handleUploadPhoto = async () => {
     setError(null);
+    try {
+      setLoading(true);
+      await ensureActorsExist();
+    } catch (err) {
+      setLoading(false);
+      setError(err instanceof Error ? toUserFriendlyError(err.message) : "Something went wrong");
+      return;
+    } finally {
+      setLoading(false);
+    }
+
     const mediaPermission = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!mediaPermission.granted) {
       setError("Photo library permission is required.");
@@ -133,7 +178,7 @@ const CameraScreen = () => {
       ) : null}
 
       {error ? (
-        <Text className="mt-3 text-base text-red-600">{error}</Text>
+        <Text className="mt-3 text-base text-red-600 text-center w-full">{error}</Text>
       ) : null}
     </View>
   );
