@@ -3,7 +3,7 @@ import { apiFetch, ApiError } from "@/services/api";
 import { clearAuthSession } from "@/services/auth";
 import React, { useState } from "react";
 import { ActivityIndicator, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
-import * as Notifications from "expo-notifications";
+
 const MAX_NOTES_LENGTH = 200;
 
 type ContinuityResult = {
@@ -15,9 +15,9 @@ type ContinuityResult = {
 
 export default function ContinuityCheck() {
   const router = useRouter();
-  const { actorId, actorName, photoUri } = useLocalSearchParams<{
-    actorId?: string;
-    actorName?: string;
+  const { talentId, talentName, photoUri } = useLocalSearchParams<{
+    talentId?: string;
+    talentName?: string;
     photoUri?: string;
   }>();
 
@@ -51,36 +51,6 @@ export default function ContinuityCheck() {
     return nextIssues;
   };
 
-  const requestNotifications = async () => {
-    const permissions = await Notifications.getPermissionsAsync();
-    if (!permissions.granted) {
-      await Notifications.requestPermissionsAsync();
-    }
-  };
-
-  const notifyResult = async (payload: {
-    status: "success" | "issues" | "error";
-    message: string;
-    annotatedImageUrl?: string;
-    regions?: string[];
-  }) => {
-    await Notifications.scheduleNotificationAsync({
-      content: {
-        title: payload.status === "success" ? "Continuity OK" : "Continuity Issue",
-        body: payload.message,
-        sound: "default",
-        data: {
-          type: "continuity_result",
-          status: payload.status,
-          annotatedImageUrl: payload.annotatedImageUrl ?? "",
-          message: payload.message,
-          regions: JSON.stringify(payload.regions ?? []),
-        },
-      },
-      trigger: null,
-    });
-  };
-
   const submit = async () => {
     setError(null);
 
@@ -88,8 +58,8 @@ export default function ContinuityCheck() {
       setError("Scene number is required.");
       return;
     }
-    if (!actorId) {
-      setError("Actor ID is missing.");
+    if (!talentId) {
+      setError("Talent ID is missing.");
       return;
     }
     if (!photoUri) {
@@ -110,41 +80,36 @@ export default function ContinuityCheck() {
 
     try {
       setLoading(true);
-      const response = await apiFetch(`/api/actors/${actorId}/photos`, {
+      const response = await apiFetch(`/api/actors/${talentId}/photos`, {
         method: "POST",
         body: formData,
       });
       const data = await response.json();
       const continuity = (data?.continuity ?? {}) as ContinuityResult;
 
-      await requestNotifications();
-
       if (continuity.error) {
-        await notifyResult({
-          status: "error",
-          message: continuity.error,
-        });
-        router.replace("/");
+        setError(continuity.error);
         return;
       }
 
       if (continuity.overall_changed === false) {
-        await notifyResult({
-          status: "success",
-          message: "No errors found",
-        });
         router.replace("/");
         return;
       }
 
       const nextIssues = buildIssues(continuity);
-      await notifyResult({
-        status: "issues",
-        message: nextIssues.length > 0 ? nextIssues.join(", ") : "Continuity issue detected",
-        annotatedImageUrl: data?.annotated_image_url ?? "",
-        regions: nextIssues,
+      router.replace({
+        pathname: "/camera/continuity_check_result",
+        params: {
+          annotatedImageUrl: data?.annotated_image_url ?? "",
+          message: nextIssues.length > 0 ? nextIssues.join(", ") : "Continuity issue detected",
+          regions: JSON.stringify(nextIssues),
+          talentId,
+          pendingToken: data?.pending_token ?? "",
+          sceneNumber: sceneNumber.trim(),
+          notes: notes.trim(),
+        },
       });
-      router.replace("/");
     } catch (err) {
       if (err instanceof ApiError && err.status === 401) {
         await clearAuthSession();
@@ -166,9 +131,9 @@ export default function ContinuityCheck() {
       <Text className="text-2xl font-semibold text-primary mb-2">
         Scene Details
       </Text>
-      {actorName ? (
+      {talentName ? (
         <Text className="text-base text-gray-500 mb-6">
-          {actorName} (ID #{actorId})
+          {talentName} (ID #{talentId})
         </Text>
       ) : null}
 

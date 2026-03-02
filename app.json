@@ -11,7 +11,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.jasoncole.cutsafe",
-      "buildNumber": "1",
+      "buildNumber": "2",
       "infoPlist": {
         "NSCameraUsageDescription": "Allow access to take actor profile photos.",
         "NSPhotoLibraryUsageDescription": "Allow access to select actor profile photos.",

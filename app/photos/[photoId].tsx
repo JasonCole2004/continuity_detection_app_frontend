@@ -8,9 +8,9 @@ import { API_URL } from "@/constants/api";
 
 export default function PhotoDetails() {
   const router = useRouter();
-  const { photoId, actorId, sceneLabel, notes } = useLocalSearchParams<{
+  const { photoId, talentId, sceneLabel, notes } = useLocalSearchParams<{
     photoId?: string;
-    actorId?: string;
+    talentId?: string;
     sceneLabel?: string;
     notes?: string;
   }>();
@@ -40,11 +40,11 @@ export default function PhotoDetails() {
     if (!photoId) return;
     try {
       setDeleting(true);
-      await apiFetch(`/api/actors/${actorId}/photos/${photoId}`, {
+      await apiFetch(`/api/actors/${talentId}/photos/${photoId}`, {
         method: "DELETE",
       });
-      if (actorId) {
-        router.replace(`/actors/${actorId}`);
+      if (talentId) {
+        router.replace(`/talent/${talentId}` as any);
       } else {
         router.back();
       }
@@ -73,6 +73,8 @@ export default function PhotoDetails() {
             headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
           }}
           style={{ width: "100%", height: 360, borderRadius: 20 }}
+          contentFit="contain"
+          contentPosition="center"
           cachePolicy="none"
         />
       ) : (

@@ -357,16 +357,16 @@ export default function Login() {
               </Text>
 
               <Text className="text-base font-semibold text-primary mb-1">
-                2. Actor Data and Storage
+                2. Talent Data and Storage
               </Text>
               <Text className="text-base text-gray-700 mb-3">
-                Actor details and related production data are stored on a secure server with reasonable
+                Talent details and related production data are stored on a secure server with reasonable
                 technical and organizational safeguards.
               </Text>
 
               <Text className="text-base font-semibold text-primary mb-1">3. Permitted Data Use</Text>
               <Text className="text-base text-gray-700 mb-3">
-                You authorize the app to use submitted data, including actor-related data, to operate
+                You authorize the app to use submitted data, including talent-related data, to operate
                 app features and improve its neural network model performance. Data use is limited to
                 film-production functions and quality improvements only.
               </Text>

@@ -1,4 +1,4 @@
-export interface Actor {
+export interface Talent {
   id: number;
   name: string;
   email: string;

@@ -11,16 +11,6 @@ type SelectedImage = {
   mimeType?: string | null;
 };
 
-const toUserFriendlyError = (message: string) => {
-  const lower = message.toLowerCase();
-  if (lower.includes("no face detected") || lower.includes("face could not be detected")) {
-    return "No face was detected. Please use a clear, front-facing photo with good lighting.";
-  }
-  if (lower.includes("no actor embeddings available")) {
-    return "No actors have been added to this production yet. Please add an actor profile first.";
-  }
-  return message;
-};
 
 const CameraScreen = () => {
   const router = useRouter();
@@ -28,12 +18,12 @@ const CameraScreen = () => {
   const [resultText, setResultText] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const ensureActorsExist = async () => {
+  const ensureTalentExists = async () => {
     const response = await apiFetch("/api/actors", { method: "GET" });
     const data = await response.json();
     if (!Array.isArray(data) || data.length === 0) {
       throw new Error(
-        "No actors have been added to this production yet. Please add an actor profile first."
+        "No talent has been added to this production yet. Please add a talent profile first."
       );
     }
   };
@@ -56,15 +46,22 @@ const CameraScreen = () => {
       });
       const data = await response.json();
       const match = Boolean(data?.match);
-      const actorName = data?.actor_name ?? "Unknown";
-      const actorId = data?.actor_id ?? "N/A";
+      const talentName = data?.actor_name ?? "Unknown";
+      const talentId = data?.actor_id ?? "N/A";
       const profilePhotoUrl = data?.profile_photo_url ?? "";
+      if (!match) {
+        router.push({
+          pathname: "/camera/manual_search",
+          params: { photoUri: photo.uri },
+        });
+        return;
+      }
       router.push({
         pathname: "/camera/facial_recognition_result",
         params: {
-          match: match ? "true" : "false",
-          actorName: String(actorName),
-          actorId: String(actorId),
+          match: "true",
+          talentName: String(talentName),
+          talentId: String(talentId),
           profilePhotoUrl: String(profilePhotoUrl),
           photoUri: photo.uri,
         },
@@ -75,9 +72,15 @@ const CameraScreen = () => {
         router.replace("/login");
         return;
       }
-      setError(
-        err instanceof Error ? toUserFriendlyError(err.message) : "Something went wrong"
-      );
+      const message = err instanceof Error ? err.message : "";
+      if (message.toLowerCase().includes("no actor embeddings available")) {
+        setError("No talent has been added to this production yet. Please add a talent profile first.");
+        return;
+      }
+      router.push({
+        pathname: "/camera/manual_search",
+        params: { photoUri: photo.uri },
+      });
     } finally {
       setLoading(false);
     }
@@ -87,10 +90,10 @@ const CameraScreen = () => {
     setError(null);
     try {
       setLoading(true);
-      await ensureActorsExist();
+      await ensureTalentExists();
     } catch (err) {
       setLoading(false);
-      setError(err instanceof Error ? toUserFriendlyError(err.message) : "Something went wrong");
+      setError(err instanceof Error ? err.message : "Something went wrong");
       return;
     } finally {
       setLoading(false);
@@ -119,10 +122,10 @@ const CameraScreen = () => {
     setError(null);
     try {
       setLoading(true);
-      await ensureActorsExist();
+      await ensureTalentExists();
     } catch (err) {
       setLoading(false);
-      setError(err instanceof Error ? toUserFriendlyError(err.message) : "Something went wrong");
+      setError(err instanceof Error ? err.message : "Something went wrong");
       return;
     } finally {
       setLoading(false);

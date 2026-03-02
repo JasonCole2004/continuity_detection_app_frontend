@@ -7,7 +7,7 @@ import settings from "@/assets/icons/settings.png";
 
 
 export const icons = {
-  actor,
+  talent: actor,
   camera,
   settings,
   search,

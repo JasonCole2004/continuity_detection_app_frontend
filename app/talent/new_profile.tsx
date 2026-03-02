@@ -19,7 +19,7 @@ type SelectedImage = {
   mimeType?: string | null;
 };
 
-export default function NewActor() {
+export default function NewTalent() {
   const router = useRouter();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -118,8 +118,8 @@ export default function NewActor() {
         <Text className="text-darkBlue text-xl font-semibold">&larr; Back</Text>
       </TouchableOpacity>
 
-      <Text className="text-3xl font-semibold text-primary">Add Actor</Text>
-      <Text className="text-gray-500 mt-1">Create a new actor profile</Text>
+      <Text className="text-3xl font-semibold text-primary">Add Talent</Text>
+      <Text className="text-gray-500 mt-1">Create a new talent profile</Text>
 
       <ScrollView
         className="flex-1"
@@ -227,7 +227,7 @@ export default function NewActor() {
           {loading ? (
             <ActivityIndicator color="#fff" />
           ) : (
-            <Text className="text-white text-base font-semibold">Save Actor</Text>
+            <Text className="text-white text-base font-semibold">Save Talent</Text>
           )}
         </TouchableOpacity>
 

@@ -1,4 +1,4 @@
-import { Actor } from "@/interfaces/Actor";
+import { Talent } from "@/interfaces/Talent";
 import { apiFetch, ApiError, toAbsoluteApiUrl } from "@/services/api";
 import { clearAuthSession, getAccessToken } from "@/services/auth";
 import { Image } from "expo-image";
@@ -14,10 +14,10 @@ type ContinuityPhoto = {
   image_path?: string | null;
 };
 
-const ActorDetails = () => {
+const TalentDetails = () => {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
-  const [actor, setActor] = useState<Actor | null>(null);
+  const [talent, setTalent] = useState<Talent | null>(null);
   const [photos, setPhotos] = useState<ContinuityPhoto[]>([]);
   const [photosLoading, setPhotosLoading] = useState(true);
   const [photosError, setPhotosError] = useState<string | null>(null);
@@ -27,12 +27,12 @@ const ActorDetails = () => {
   const [deleting, setDeleting] = useState(false);
   const [accessToken, setAccessToken] = useState<string>("");
 
-  const fetchActor = useCallback(async () => {
+  const fetchTalent = useCallback(async () => {
     try {
       setLoading(true);
       const response = await apiFetch(`/api/actors/${id}`);
       const data = await response.json();
-      setActor(data);
+      setTalent(data);
     } catch (err) {
       if (err instanceof ApiError && err.status === 401) {
         await clearAuthSession();
@@ -64,29 +64,29 @@ const ActorDetails = () => {
   }, [id, router]);
 
   useEffect(() => {
-    fetchActor();
+    fetchTalent();
     fetchPhotos();
     setImageError(false);
-  }, [fetchActor, fetchPhotos]);
+  }, [fetchTalent, fetchPhotos]);
 
   useEffect(() => {
     getAccessToken().then((token) => setAccessToken(token ?? ""));
   }, []);
 
-  const confirmDelete = () => { 
+  const confirmDelete = () => {
     if (deleting) return;
     Alert.alert(
       "Delete Profile",
       "Are you sure you want to delete this profile?",
       [
         { text: "Cancel", style: "cancel" },
-        { text: "Delete", style: "destructive", onPress: deleteActor },
+        { text: "Delete", style: "destructive", onPress: deleteTalent },
       ],
       { cancelable: true }
     );
   };
 
-  const deleteActor = async () => {
+  const deleteTalent = async () => {
     try {
       setDeleting(true);
       await apiFetch(`/api/actors/${id}`, {
@@ -113,10 +113,10 @@ const ActorDetails = () => {
     );
   }
 
-  if (error || !actor) {
+  if (error || !talent) {
     return (
       <View className="flex-1 justify-center items-center bg-white px-5">
-        <Text className="text-red-500 text-base mb-4">{error ?? "Actor not found"}</Text>
+        <Text className="text-red-500 text-base mb-4">{error ?? "Talent not found"}</Text>
         <TouchableOpacity onPress={() => router.back()} className="bg-darkBlue px-6 py-3 rounded-full">
           <Text className="text-white font-semibold">Go Back</Text>
         </TouchableOpacity>
@@ -130,10 +130,10 @@ const ActorDetails = () => {
     return `${url}${separator}v=${encodeURIComponent(token)}`;
   };
 
-  const profilePhotoUri = actor.profile_photo_url
+  const profilePhotoUri = talent.profile_photo_url
     ? addCacheBuster(
-        toAbsoluteApiUrl(actor.profile_photo_url),
-        `${actor.id}`
+        toAbsoluteApiUrl(talent.profile_photo_url),
+        `${talent.id}`
       )
     : "";
 
@@ -165,22 +165,22 @@ const ActorDetails = () => {
         )}
       </View>
 
-      <Text className="text-3xl font-bold text-primary mb-8">{actor.name}</Text>
+      <Text className="text-3xl font-bold text-primary mb-8">{talent.name}</Text>
 
       <View className="bg-lightGray p-5 rounded-2xl">
         <View className="mb-4">
           <Text className="text-sm text-gray-400 mb-1">ID</Text>
-          <Text className="text-lg text-primary">#{actor.id}</Text>
+          <Text className="text-lg text-primary">#{talent.id}</Text>
         </View>
 
         <View className="mb-4">
           <Text className="text-sm text-gray-400 mb-1">Email</Text>
-          <Text className="text-lg text-primary">{actor.email}</Text>
+          <Text className="text-lg text-primary">{talent.email}</Text>
         </View>
 
         <View>
           <Text className="text-sm text-gray-400 mb-1">Phone</Text>
-          <Text className="text-lg text-primary">{actor.phone}</Text>
+          <Text className="text-lg text-primary">{talent.phone}</Text>
         </View>
       </View>
 
@@ -205,7 +205,7 @@ const ActorDetails = () => {
                     pathname: "/photos/[photoId]",
                     params: {
                       photoId: String(photo.id),
-                      actorId: String(actor.id),
+                      talentId: String(talent.id),
                       sceneLabel: String(sceneLabel),
                       notes: String(photo.notes ?? ""),
                     },
@@ -236,4 +236,4 @@ const ActorDetails = () => {
   );
 };
 
-export default ActorDetails;
+export default TalentDetails;

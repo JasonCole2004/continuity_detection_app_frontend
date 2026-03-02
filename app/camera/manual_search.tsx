@@ -1,29 +1,29 @@
 import SearchBar from "@/components/SearchBar";
-import { Actor } from "@/interfaces/Actor";
+import { Talent } from "@/interfaces/Talent";
 import { apiFetch, ApiError } from "@/services/api";
 import { clearAuthSession } from "@/services/auth";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import { ActivityIndicator, ScrollView, Text, TouchableOpacity, View } from "react-native";
 
-export default function ManualActorSearch() {
+export default function ManualTalentSearch() {
   const router = useRouter();
   const { photoUri } = useLocalSearchParams<{ photoUri?: string }>();
-  const [actors, setActors] = useState<Actor[]>([]);
+  const [talents, setTalents] = useState<Talent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
 
-  const filteredActors = actors.filter((actor) =>
-    actor.name.toLowerCase().includes(search.toLowerCase())
+  const filteredTalents = talents.filter((talent) =>
+    talent.name.toLowerCase().includes(search.toLowerCase())
   );
 
-  const fetchActors = useCallback(async () => {
+  const fetchTalents = useCallback(async () => {
     try {
       setLoading(true);
       const response = await apiFetch("/api/actors");
       const data = await response.json();
-      setActors(data);
+      setTalents(data);
     } catch (err) {
       if (err instanceof ApiError && err.status === 401) {
         await clearAuthSession();
@@ -37,8 +37,8 @@ export default function ManualActorSearch() {
   }, [router]);
 
   useEffect(() => {
-    fetchActors();
-  }, [fetchActors]);
+    fetchTalents();
+  }, [fetchTalents]);
 
   if (loading) {
     return (
@@ -52,7 +52,7 @@ export default function ManualActorSearch() {
     return (
       <View className="flex-1 justify-center items-center bg-white px-5">
         <Text className="text-red-500 text-base mb-4">{error}</Text>
-        <TouchableOpacity onPress={fetchActors} className="bg-darkBlue px-6 py-3 rounded-full">
+        <TouchableOpacity onPress={fetchTalents} className="bg-darkBlue px-6 py-3 rounded-full">
           <Text className="text-white font-semibold">Retry</Text>
         </TouchableOpacity>
       </View>
@@ -65,7 +65,7 @@ export default function ManualActorSearch() {
         <Text className="text-darkBlue text-xl font-semibold">&larr; Back</Text>
       </TouchableOpacity>
 
-      <Text className="text-2xl font-semibold text-primary mb-4">Search Actor</Text>
+      <Text className="text-2xl font-semibold text-primary mb-4">Search Talent</Text>
 
       <ScrollView
         className="flex-1"
@@ -75,20 +75,20 @@ export default function ManualActorSearch() {
         <View className="flex-1 mt-2 mb-2">
           <SearchBar value={search} onChangeText={setSearch} />
         </View>
-        {filteredActors.length === 0 ? (
+        {filteredTalents.length === 0 ? (
           <View className="flex-1 justify-center items-center mt-20">
-            <Text className="text-gray-400 text-base">No actors found</Text>
+            <Text className="text-gray-400 text-base">No talent found</Text>
           </View>
         ) : (
-          filteredActors.map((actor) => (
+          filteredTalents.map((talent) => (
             <TouchableOpacity
-              key={actor.id}
+              key={talent.id}
               onPress={() =>
                 router.push({
                   pathname: "/camera/continuity_check",
                   params: {
-                    actorId: String(actor.id),
-                    actorName: String(actor.name),
+                    talentId: String(talent.id),
+                    talentName: String(talent.name),
                     photoUri: String(photoUri ?? ""),
                   },
                 })
@@ -97,7 +97,7 @@ export default function ManualActorSearch() {
               activeOpacity={0.7}
             >
               <Text className="text-lg font-semibold text-primary">
-                {actor.name}  <Text className="text-base text-gray-400">ID number #{actor.id}</Text>
+                {talent.name}  <Text className="text-base text-gray-400">ID number #{talent.id}</Text>
               </Text>
             </TouchableOpacity>
           ))

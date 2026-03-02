@@ -7,17 +7,17 @@ import { getAccessToken } from "@/services/auth";
 
 const CameraResult = () => {
   const router = useRouter();
-  const { match, actorName, actorId, profilePhotoUrl, photoUri } = useLocalSearchParams<{
+  const { match, talentName, talentId, profilePhotoUrl, photoUri } = useLocalSearchParams<{
     match?: string;
-    actorName?: string;
-    actorId?: string;
+    talentName?: string;
+    talentId?: string;
     profilePhotoUrl?: string;
     photoUri?: string;
   }>();
 
   const isMatch = match === "true";
-  const name = actorName ?? "Unknown";
-  const id = actorId ?? "N/A";
+  const name = talentName ?? "Unknown";
+  const id = talentId ?? "N/A";
   const [cacheKey] = useState(() => Date.now());
   const [accessToken, setAccessToken] = useState<string>("");
 
@@ -69,8 +69,8 @@ const CameraResult = () => {
               router.push({
                 pathname: "/camera/continuity_check",
                 params: {
-                  actorId: String(id),
-                  actorName: String(name),
+                  talentId: String(id),
+                  talentName: String(name),
                   photoUri: String(photoUri ?? ""),
                 },
               })
