@@ -1,4 +1,6 @@
 import { apiFetch, ApiError } from "@/services/api";
+import { useHCStyles } from "@/contexts/ThemeContext";
+import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
@@ -12,6 +14,7 @@ import {
 
 export default function ResetPassword() {
   const router = useRouter();
+  const s = useHCStyles();
   const [email, setEmail] = useState("");
   const [resetCode, setResetCode] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -111,13 +114,13 @@ export default function ResetPassword() {
   };
 
   return (
-    <View className="flex-1 bg-white px-5">
+    <View className="flex-1 bg-white px-5" style={s.bg}>
       <TouchableOpacity onPress={() => router.back()} className="mt-20 mb-8">
         <Text className="text-darkBlue text-xl font-semibold">&larr; Back</Text>
       </TouchableOpacity>
 
-      <Text className="text-3xl font-semibold text-primary">Reset Password</Text>
-      <Text className="text-base text-gray-600 mt-2 mb-6">
+      <Text className="text-3xl font-semibold text-primary" style={s.text}>Reset Password</Text>
+      <Text className="text-base text-gray-600 mt-2 mb-6" style={s.subtext}>
         Request a 6-digit reset code by email, then enter your new password.
       </Text>
 
@@ -127,88 +130,95 @@ export default function ResetPassword() {
         contentContainerStyle={{ paddingBottom: 40 }}
       >
         <View className="mt-2">
-          <Text className="text-sm text-gray-500 mb-2">Email</Text>
+          <Text className="text-sm text-gray-500 mb-2" style={s.subtext}>Email</Text>
           <TextInput
             className="bg-lightGray rounded-2xl px-4"
             placeholder="Enter account email"
+            placeholderTextColor={s.subtext.color ?? "#9ca3af"}
             value={email}
             onChangeText={setEmail}
             autoCapitalize="none"
             keyboardType="email-address"
-            style={{
+            style={[{
               height: 52,
               paddingVertical: 12,
               textAlignVertical: "center",
               fontSize: 16,
               lineHeight: 20,
-            }}
+            }, s.input]}
           />
         </View>
 
         <TouchableOpacity
-          className="mt-4 bg-oceanBlue py-4 rounded-full items-center"
+          className="mt-4 bg-lightGray py-4 rounded-full items-center flex-row justify-center gap-2"
           activeOpacity={0.85}
           onPress={requestCode}
           disabled={requestingCode}
         >
           {requestingCode ? (
-            <ActivityIndicator color="#fff" />
+            <ActivityIndicator color="#374151" />
           ) : (
-            <Text className="text-white text-base font-semibold">Send Reset Code</Text>
+            <>
+              <Ionicons name="paper-plane-outline" size={18} color="#374151" />
+              <Text className="text-gray-700 text-base font-semibold">Send Reset Code</Text>
+            </>
           )}
         </TouchableOpacity>
 
         <View className="mt-8">
-          <Text className="text-sm text-gray-500 mb-2">Reset Code</Text>
+          <Text className="text-sm text-gray-500 mb-2" style={s.subtext}>Reset Code</Text>
           <TextInput
             className="bg-lightGray rounded-2xl px-4"
             placeholder="Enter 6-digit code"
+            placeholderTextColor={s.subtext.color ?? "#9ca3af"}
             value={resetCode}
             onChangeText={(text) => setResetCode(text.replace(/[^0-9]/g, "").slice(0, 6))}
             keyboardType="number-pad"
-            style={{
+            style={[{
               height: 52,
               paddingVertical: 12,
               textAlignVertical: "center",
               fontSize: 16,
               lineHeight: 20,
-            }}
+            }, s.input]}
           />
         </View>
 
         <View className="mt-4">
-          <Text className="text-sm text-gray-500 mb-2">New Password</Text>
+          <Text className="text-sm text-gray-500 mb-2" style={s.subtext}>New Password</Text>
           <TextInput
             className="bg-lightGray rounded-2xl px-4"
             placeholder="Enter new password"
+            placeholderTextColor={s.subtext.color ?? "#9ca3af"}
             value={newPassword}
             onChangeText={setNewPassword}
             secureTextEntry
-            style={{
+            style={[{
               height: 52,
               paddingVertical: 12,
               textAlignVertical: "center",
               fontSize: 16,
               lineHeight: 20,
-            }}
+            }, s.input]}
           />
         </View>
 
         <View className="mt-4">
-          <Text className="text-sm text-gray-500 mb-2">Confirm Password</Text>
+          <Text className="text-sm text-gray-500 mb-2" style={s.subtext}>Confirm Password</Text>
           <TextInput
             className="bg-lightGray rounded-2xl px-4"
             placeholder="Re-enter new password"
+            placeholderTextColor={s.subtext.color ?? "#9ca3af"}
             value={confirmPassword}
             onChangeText={setConfirmPassword}
             secureTextEntry
-            style={{
+            style={[{
               height: 52,
               paddingVertical: 12,
               textAlignVertical: "center",
               fontSize: 16,
               lineHeight: 20,
-            }}
+            }, s.input]}
           />
         </View>
 

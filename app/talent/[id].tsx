@@ -1,8 +1,12 @@
+import * as ImagePicker from "expo-image-picker";
+import { Ionicons } from "@expo/vector-icons";
+import { useHCStyles } from "@/contexts/ThemeContext";
 import { Talent } from "@/interfaces/Talent";
 import { apiFetch, ApiError, toAbsoluteApiUrl } from "@/services/api";
 import { clearAuthSession, getAccessToken } from "@/services/auth";
 import { Image } from "expo-image";
 import { useLocalSearchParams, useRouter } from "expo-router";
+import { useFocusEffect } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
 import { ActivityIndicator, Alert, ScrollView, Text, TouchableOpacity, View } from "react-native";
 
@@ -17,6 +21,7 @@ type ContinuityPhoto = {
 const TalentDetails = () => {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
+  const s = useHCStyles();
   const [talent, setTalent] = useState<Talent | null>(null);
   const [photos, setPhotos] = useState<ContinuityPhoto[]>([]);
   const [photosLoading, setPhotosLoading] = useState(true);
@@ -63,11 +68,18 @@ const TalentDetails = () => {
     }
   }, [id, router]);
 
-  useEffect(() => {
-    fetchTalent();
-    fetchPhotos();
-    setImageError(false);
-  }, [fetchTalent, fetchPhotos]);
+  useFocusEffect(
+    useCallback(() => {
+      fetchTalent();
+      setImageError(false);
+    }, [fetchTalent])
+  );
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchPhotos();
+    }, [fetchPhotos])
+  );
 
   useEffect(() => {
     getAccessToken().then((token) => setAccessToken(token ?? ""));
@@ -105,6 +117,47 @@ const TalentDetails = () => {
     }
   };
 
+  const navigateToContCheck = (uri: string) => {
+    router.push({
+      pathname: "/camera/continuity_check",
+      params: {
+        talentId: String(talent!.id),
+        talentName: talent!.name,
+        photoUri: uri,
+      },
+    });
+  };
+
+  const addContPhoto = () => {
+    Alert.alert("Add Continuity Photo", "Choose a source", [
+      {
+        text: "Take Photo",
+        onPress: async () => {
+          const permission = await ImagePicker.requestCameraPermissionsAsync();
+          if (!permission.granted) {
+            Alert.alert("Permission required", "Camera access is needed.");
+            return;
+          }
+          const result = await ImagePicker.launchCameraAsync({ allowsEditing: false, quality: 0.9 });
+          if (!result.canceled && result.assets[0]) navigateToContCheck(result.assets[0].uri);
+        },
+      },
+      {
+        text: "Upload from Library",
+        onPress: async () => {
+          const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+          if (!permission.granted) {
+            Alert.alert("Permission required", "Photo library access is needed.");
+            return;
+          }
+          const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ImagePicker.MediaTypeOptions.Images, allowsEditing: false, quality: 0.9 });
+          if (!result.canceled && result.assets[0]) navigateToContCheck(result.assets[0].uri);
+        },
+      },
+      { text: "Cancel", style: "cancel" },
+    ]);
+  };
+
   if (loading) {
     return (
       <View className="flex-1 justify-center items-center bg-white">
@@ -140,6 +193,7 @@ const TalentDetails = () => {
   return (
     <ScrollView
       className="flex-1 bg-white px-5"
+      style={s.bg}
       showsVerticalScrollIndicator={false}
       contentContainerStyle={{ paddingBottom: 40 }}
     >
@@ -165,27 +219,17 @@ const TalentDetails = () => {
         )}
       </View>
 
-      <Text className="text-3xl font-bold text-primary mb-8">{talent.name}</Text>
+      <Text className="text-3xl font-bold text-primary mb-8" style={s.text}>{talent.name}</Text>
 
-      <View className="bg-lightGray p-5 rounded-2xl">
-        <View className="mb-4">
-          <Text className="text-sm text-gray-400 mb-1">ID</Text>
-          <Text className="text-lg text-primary">#{talent.id}</Text>
-        </View>
-
-        <View className="mb-4">
-          <Text className="text-sm text-gray-400 mb-1">Email</Text>
-          <Text className="text-lg text-primary">{talent.email}</Text>
-        </View>
-
+      <View className="bg-lightGray p-5 rounded-2xl" style={s.card}>
         <View>
-          <Text className="text-sm text-gray-400 mb-1">Phone</Text>
-          <Text className="text-lg text-primary">{talent.phone}</Text>
+          <Text className="text-sm text-gray-400 mb-1" style={s.subtext}>ID</Text>
+          <Text className="text-lg text-primary" style={s.text}>#{talent.id}</Text>
         </View>
       </View>
 
       <View className="mt-8">
-        <Text className="text-2xl font-semibold text-primary mb-4">Continuity Photos</Text>
+        <Text className="text-2xl font-semibold text-primary mb-4" style={s.text}>Continuity Photos</Text>
         {photosLoading ? (
           <ActivityIndicator size="small" color="#023E8A" />
         ) : photosError ? (
@@ -199,6 +243,7 @@ const TalentDetails = () => {
               <TouchableOpacity
                 key={photo.id}
                 className="bg-lightGray p-4 rounded-2xl mb-3"
+                style={s.card}
                 activeOpacity={0.7}
                 onPress={() =>
                   router.push({
@@ -212,10 +257,10 @@ const TalentDetails = () => {
                   })
                 }
               >
-                <Text className="text-lg font-semibold text-primary">
+                <Text className="text-lg font-semibold text-primary" style={s.text}>
                   Scene {sceneLabel}
                 </Text>
-                <Text className="text-sm text-gray-500 mt-1">Photo ID #{photo.id}</Text>
+                <Text className="text-sm text-gray-500 mt-1" style={s.subtext}>Photo ID #{photo.id}</Text>
               </TouchableOpacity>
             );
           })
@@ -223,8 +268,34 @@ const TalentDetails = () => {
       </View>
 
       <TouchableOpacity
+        onPress={addContPhoto}
+        className="mt-10 bg-lightGray py-4 rounded-full items-center flex-row justify-center gap-2"
+        activeOpacity={0.8}
+      >
+        <Ionicons name="camera-outline" size={20} color="#374151" />
+        <Text className="text-gray-700 text-base font-semibold">Take Continuity Photo</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        onPress={() =>
+          router.push({
+            pathname: "/talent/edit_profile",
+            params: {
+              id: String(talent.id),
+              currentName: talent.name,
+              currentPhotoUrl: talent.profile_photo_url ?? "",
+            },
+          })
+        }
+        className="mt-3 bg-darkBlue py-4 rounded-full items-center"
+        activeOpacity={0.8}
+      >
+        <Text className="text-white text-base font-semibold">Edit Profile</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
         onPress={confirmDelete}
-        className="mt-10 mb-10 bg-red-600 py-4 rounded-full items-center"
+        className="mt-3 mb-10 bg-red-600 py-4 rounded-full items-center"
         activeOpacity={0.8}
         disabled={deleting}
       >

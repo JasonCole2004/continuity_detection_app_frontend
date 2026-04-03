@@ -1,4 +1,5 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
+import { useHCStyles } from "@/contexts/ThemeContext";
 import React, { useEffect, useState } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 import { Image } from "expo-image";
@@ -7,6 +8,7 @@ import { getAccessToken } from "@/services/auth";
 
 const CameraResult = () => {
   const router = useRouter();
+  const s = useHCStyles();
   const { match, talentName, talentId, profilePhotoUrl, photoUri } = useLocalSearchParams<{
     match?: string;
     talentName?: string;
@@ -35,7 +37,7 @@ const CameraResult = () => {
     : "";
 
   return (
-    <View className="flex-1 bg-white px-5">
+    <View className="flex-1 bg-white px-5" style={s.bg}>
       <TouchableOpacity onPress={() => router.back()} className="mt-20 mb-1">
         <Text className="text-darkBlue text-xl font-semibold">&larr; Back</Text>
       </TouchableOpacity>
@@ -51,9 +53,9 @@ const CameraResult = () => {
             cachePolicy="none"
           />
         ) : null}
-        <Text className="text-2xl font-semibold text-primary mt-6">Is this:</Text>
-        <Text className="text-3xl font-bold text-primary mt-2 text-center">{name}</Text>
-        <Text className="text-lg text-gray-500 mt-2 text-center">ID #{id}</Text>
+        <Text className="text-2xl font-semibold text-primary mt-6" style={s.text}>Is this:</Text>
+        <Text className="text-3xl font-bold text-primary mt-2 text-center" style={s.text}>{name}</Text>
+        <Text className="text-lg text-gray-500 mt-2 text-center" style={s.subtext}>ID #{id}</Text>
       </View>
 
       {!isMatch ? (

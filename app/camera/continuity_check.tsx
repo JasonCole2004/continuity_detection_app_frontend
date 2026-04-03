@@ -1,4 +1,5 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
+import { useHCStyles } from "@/contexts/ThemeContext";
 import { apiFetch, ApiError } from "@/services/api";
 import { clearAuthSession } from "@/services/auth";
 import React, { useState } from "react";
@@ -15,6 +16,7 @@ type ContinuityResult = {
 
 export default function ContinuityCheck() {
   const router = useRouter();
+  const s = useHCStyles();
   const { talentId, talentName, photoUri } = useLocalSearchParams<{
     talentId?: string;
     talentName?: string;
@@ -123,16 +125,16 @@ export default function ContinuityCheck() {
   };
 
   return (
-    <View className="flex-1 bg-white px-5">
+    <View className="flex-1 bg-white px-5" style={s.bg}>
       <TouchableOpacity onPress={() => router.back()} className="mt-20 mb-8">
         <Text className="text-darkBlue text-xl font-semibold">&larr; Back</Text>
       </TouchableOpacity>
 
-      <Text className="text-2xl font-semibold text-primary mb-2">
+      <Text className="text-2xl font-semibold text-primary mb-2" style={s.text}>
         Scene Details
       </Text>
       {talentName ? (
-        <Text className="text-base text-gray-500 mb-6">
+        <Text className="text-base text-gray-500 mb-6" style={s.subtext}>
           {talentName} (ID #{talentId})
         </Text>
       ) : null}
@@ -143,43 +145,45 @@ export default function ContinuityCheck() {
         contentContainerStyle={{ paddingBottom: 40 }}
       >
         <View className="mt-2">
-          <Text className="text-sm text-gray-500 mb-2">Scene Number</Text>
+          <Text className="text-sm text-gray-500 mb-2" style={s.subtext}>Scene Number</Text>
           <TextInput
             className="bg-lightGray rounded-2xl px-4"
             placeholder="Enter scene number"
+            placeholderTextColor={s.subtext.color ?? "#9ca3af"}
             value={sceneNumber}
             onChangeText={(text) => setSceneNumber(text.replace(/[^0-9]/g, ""))}
             keyboardType="number-pad"
-            style={{
+            style={[{
               height: 52,
               paddingVertical: 12,
               textAlignVertical: "center",
               fontSize: 16,
               lineHeight: 20,
-            }}
+            }, s.input]}
           />
         </View>
 
         <View className="mt-4">
-          <Text className="text-sm text-gray-500 mb-2">Notes (optional)</Text>
+          <Text className="text-sm text-gray-500 mb-2" style={s.subtext}>Notes (optional)</Text>
           <TextInput
             className="bg-lightGray rounded-2xl px-4"
             placeholder="Add notes"
+            placeholderTextColor={s.subtext.color ?? "#9ca3af"}
             value={notes}
             onChangeText={setNotes}
             multiline
             numberOfLines={3}
             maxLength={MAX_NOTES_LENGTH}
             textAlignVertical="top"
-            style={{
+            style={[{
               height: 96,
               paddingVertical: 12,
               fontSize: 16,
               lineHeight: 20,
-            }}
+            }, s.input]}
             scrollEnabled
           />
-          <Text className="text-xs text-gray-500 mt-2 text-right">
+          <Text className="text-xs text-gray-500 mt-2 text-right" style={s.subtext}>
             {notes.length}/{MAX_NOTES_LENGTH}
           </Text>
         </View>

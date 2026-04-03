@@ -1,6 +1,8 @@
 import * as ImagePicker from "expo-image-picker";
 import { apiFetch, ApiError } from "@/services/api";
 import { clearAuthSession } from "@/services/auth";
+import { Ionicons } from "@expo/vector-icons";
+import { useHCStyles } from "@/contexts/ThemeContext";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import { ActivityIndicator, Text, TouchableOpacity, View } from "react-native";
@@ -14,6 +16,7 @@ type SelectedImage = {
 
 const CameraScreen = () => {
   const router = useRouter();
+  const s = useHCStyles();
   const [loading, setLoading] = useState(false);
   const [resultText, setResultText] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -152,7 +155,7 @@ const CameraScreen = () => {
   };
 
   return (
-    <View className="flex-1 bg-white items-center justify-center px-6">
+    <View className="flex-1 bg-white items-center justify-center px-6" style={s.bg}>
       <TouchableOpacity
         className="w-full bg-darkBlue py-4 rounded-full items-center mb-4"
         activeOpacity={0.85}
@@ -164,12 +167,13 @@ const CameraScreen = () => {
         </Text>
       </TouchableOpacity>
       <TouchableOpacity
-        className="w-full bg-oceanBlue py-4 rounded-full items-center"
+        className="w-full bg-lightGray py-4 rounded-full items-center flex-row justify-center gap-2"
         activeOpacity={0.85}
         onPress={handleUploadPhoto}
         disabled={loading}
       >
-        <Text className="text-white text-base font-semibold">Upload Photo</Text>
+        <Ionicons name="cloud-upload-outline" size={20} color="#374151" />
+        <Text className="text-gray-700 text-base font-semibold">Upload Photo</Text>
       </TouchableOpacity>
 
       {loading ? (

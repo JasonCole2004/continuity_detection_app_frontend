@@ -1,5 +1,5 @@
 import { API_URL } from "@/constants/api";
-import { getAccessToken } from "@/services/auth";
+import { getAccessToken, markSessionExpired } from "@/services/auth";
 
 export class ApiError extends Error {
   status: number;
@@ -17,6 +17,11 @@ type ApiFetchOptions = {
 
 const parseErrorMessage = async (response: Response) => {
   const contentType = response.headers.get("content-type") ?? "";
+
+  if (contentType.includes("text/html")) {
+    return "Server is currently unavailable. Please try again later.";
+  }
+
   if (contentType.includes("application/json")) {
     try {
       const json = await response.json();
@@ -52,14 +57,27 @@ export const apiFetch = async (
     headers.set("Authorization", `Bearer ${token}`);
   }
 
-  const response = await fetch(`${API_URL}${path}`, {
-    ...init,
-    headers,
-  });
+  let response: Response;
+  try {
+    response = await fetch(`${API_URL}${path}`, {
+      ...init,
+      headers,
+    });
+  } catch {
+    throw new Error("Unable to reach the server. Please check your connection and try again.");
+  }
 
   if (!response.ok) {
+    if (response.status === 401) {
+      await markSessionExpired();
+    }
     const message = await parseErrorMessage(response);
     throw new ApiError(message, response.status);
+  }
+
+  const contentType = response.headers.get("content-type") ?? "";
+  if (contentType.includes("text/html")) {
+    throw new Error("Server is currently unavailable. Please try again later.");
   }
 
   return response;
